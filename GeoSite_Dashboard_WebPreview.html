@@ -1,0 +1,524 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GeoSite | نظام اختيار أفضل موقع للخدمات العامة</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <style>:root{
+  --blue:#0b4f8a;
+  --blue-2:#0f79bd;
+  --blue-3:#2fa9e6;
+  --pale:#edf7ff;
+  --ink:#102a43;
+  --muted:#61788f;
+  --line:#d8e8f5;
+  --panel:#ffffffcc;
+  --shadow:0 18px 45px rgba(11,79,138,.13);
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Tahoma,sans-serif;color:var(--ink);background:#f7fbff;min-height:100vh}
+.contour-bg{position:fixed;inset:0;z-index:-2;background:radial-gradient(circle at 18% 12%,rgba(47,169,230,.16),transparent 34%),radial-gradient(circle at 84% 6%,rgba(11,79,138,.12),transparent 30%),linear-gradient(180deg,#f9fcff,#f2f8fd)}
+.contour-bg:after{content:"";position:absolute;inset:0;opacity:.75;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='110' viewBox='0 0 180 110'%3E%3Cpath d='M-10 35 C25 8 68 60 102 35 S155 17 190 45 M-10 72 C22 50 67 105 115 72 S162 48 190 77 M-10 15 C42 30 76 -4 130 15 S160 35 190 22' fill='none' stroke='%230b4f8a' stroke-opacity='.07' stroke-width='1.2'/%3E%3C/svg%3E")}
+.topbar{max-width:1600px;margin:18px auto 14px;padding:18px 22px;display:flex;align-items:stretch;justify-content:space-between;gap:18px}
+.topbar>div:first-child{flex:1;background:linear-gradient(135deg,#fff,#eef8ff);border:1px solid var(--line);border-radius:28px;padding:22px 26px;box-shadow:var(--shadow)}
+.eyebrow{display:inline-flex;color:var(--blue);font-weight:700;background:#e9f6ff;border:1px solid #cfeaff;padding:7px 12px;border-radius:999px;margin-bottom:10px;font-size:13px;letter-spacing:.3px}
+h1{font-size:30px;line-height:1.25;margin:0 0 8px;color:var(--blue)}
+p{color:var(--muted);line-height:1.7;margin:0}.status-card{width:320px;background:#fff;border:1px solid var(--line);border-radius:28px;padding:22px;box-shadow:var(--shadow);display:flex;flex-direction:column;justify-content:center;gap:8px}.status-card span{color:var(--muted)}.status-card b{color:var(--blue);font-size:20px}.status-card small{color:#37677f;line-height:1.5}
+.layout{max-width:1600px;margin:0 auto 28px;padding:0 22px;display:grid;grid-template-columns:430px 1fr;gap:16px;align-items:start}.panel{background:var(--panel);backdrop-filter:blur(14px);border:1px solid var(--line);box-shadow:var(--shadow);border-radius:26px}.side{padding:16px;position:sticky;top:14px;max-height:calc(100vh - 28px);overflow:auto}.step-card{background:#fff;border:1px solid #e4f0f8;border-radius:22px;padding:16px;margin-bottom:12px}.step-card.active{background:linear-gradient(135deg,#fff,#f0f9ff)}.step-title{font-weight:800;color:var(--blue);display:flex;align-items:center;gap:10px;margin-bottom:12px}.step-title span{width:30px;height:30px;border-radius:50%;display:inline-grid;place-items:center;background:linear-gradient(135deg,var(--blue),var(--blue-3));color:#fff;font-size:14px}label{display:block;margin:12px 0 6px;color:#244a66;font-weight:700;font-size:13px}input,select{width:100%;border:1px solid #cfe0ee;border-radius:14px;background:#fff;padding:11px 12px;color:#102a43;outline:none;font-size:14px}input:focus,select:focus{border-color:var(--blue-2);box-shadow:0 0 0 4px rgba(15,121,189,.10)}input[type=file]{font-size:12px;background:#f9fcff}.required{color:#d9432f;font-size:12px}.note{background:#f5fbff;border:1px dashed #bbdcef;color:#315a73;padding:10px;border-radius:15px;margin-top:12px;line-height:1.6;font-size:13px}.required-list{display:flex;flex-direction:column;gap:8px}.required-list b{color:var(--blue)}.required-list span{display:block;background:#f4faff;border:1px solid #d8ebf8;border-radius:14px;padding:9px 10px;color:#294f68;font-size:13px;line-height:1.5}.required-list .group-title{margin-top:5px;font-weight:800;color:var(--blue);background:transparent;border:0;padding:0}details{border:1px solid #e1edf6;border-radius:16px;margin-top:12px;padding:10px;background:#fbfdff}summary{cursor:pointer;color:var(--blue);font-weight:800}.two-cols{display:grid;grid-template-columns:1fr 1fr;gap:8px}.weights-head{display:flex;justify-content:space-between;align-items:center;background:#f0f8ff;border:1px solid #d7ebfa;border-radius:16px;padding:11px 12px;margin-bottom:12px}.weights-head b{color:var(--blue)}.weight-row{display:grid;grid-template-columns:120px 1fr 48px;align-items:center;gap:8px;margin-bottom:10px}.weight-row b{font-size:12px;color:#244a66}.weight-row output{font-weight:800;color:var(--blue);text-align:left}.weight-row input{padding:0;accent-color:var(--blue)}.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}button{border:0;border-radius:16px;padding:12px 15px;font-weight:800;cursor:pointer;transition:.15s ease;white-space:nowrap}button:disabled{opacity:.5;cursor:not-allowed}.primary{background:linear-gradient(135deg,var(--blue),var(--blue-2));color:#fff;box-shadow:0 12px 22px rgba(11,79,138,.22)}.primary:hover{transform:translateY(-1px)}.secondary,.tool-actions button{background:#eef7ff;color:var(--blue);border:1px solid #cae6f8}.secondary:hover,.tool-actions button:hover{background:#e0f1fe}.content{display:flex;flex-direction:column;gap:14px}.toolbar{display:flex;justify-content:space-between;align-items:center;padding:15px 18px}.toolbar b{display:block;color:var(--blue);font-size:18px}.toolbar span{color:var(--muted);font-size:13px}.tool-actions{display:flex;gap:8px}.map-shell{position:relative;padding:12px}.map-shell #map{height:620px;border-radius:20px;overflow:hidden;background:#eaf3fb;z-index:1}.legend{position:absolute;right:26px;bottom:26px;z-index:501;background:#ffffffee;border:1px solid var(--line);border-radius:18px;padding:12px 14px;box-shadow:0 12px 28px rgba(11,79,138,.15);display:flex;flex-direction:column;gap:7px;font-size:12px}.legend b{color:var(--blue);font-size:13px}.legend span{display:flex;align-items:center;gap:7px}.legend i{width:18px;height:12px;border-radius:4px;display:inline-block;border:1px solid #fff}.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.kpi{background:#fff;border:1px solid var(--line);border-radius:22px;padding:16px;box-shadow:0 10px 25px rgba(11,79,138,.08)}.kpi span{color:var(--muted);font-size:13px}.kpi b{display:block;color:var(--blue);font-size:26px;margin-top:8px;overflow:hidden;text-overflow:ellipsis}.results-panel,.rules-panel{padding:18px}.section-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:12px}h2{margin:0 0 6px;color:var(--blue);font-size:20px}.table-wrap{max-height:420px;overflow:auto;border:1px solid #e2eef7;border-radius:18px;background:#fff}table{width:100%;border-collapse:collapse;min-width:960px}th,td{padding:11px 10px;border-bottom:1px solid #e7f0f7;text-align:right;vertical-align:top;font-size:13px}th{position:sticky;top:0;background:#eaf6ff;color:var(--blue);z-index:1}td.ok{color:#16823a;font-weight:800}td.bad{color:#c63b2e;font-weight:800}.rules-panel ul{margin:0;padding-right:22px;color:#335b73;line-height:1.85}.completeness{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end;max-width:520px}.chip{display:inline-flex;align-items:center;gap:5px;padding:7px 10px;border-radius:999px;font-size:12px;border:1px solid #d8e8f5;background:#fff}.chip.ok{background:#ecfff3;border-color:#bfeccb;color:#186b34}.chip.miss{background:#fff4f2;border-color:#ffd0c8;color:#9a2d21}.loading{position:fixed;inset:0;z-index:9999;background:rgba(245,250,255,.82);backdrop-filter:blur(8px);display:grid;place-items:center;text-align:center}.loading.hidden{display:none}.loading>div,.loading>b,.loading>span{grid-column:1}.loading b{font-size:20px;color:var(--blue);margin-top:86px}.loading span{color:var(--muted);max-width:640px;line-height:1.8}.loader{width:66px;height:66px;border-radius:50%;border:7px solid #d7ecfb;border-top-color:var(--blue);animation:spin 1s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}.leaflet-popup-content{font-family:Arial,Tahoma,sans-serif;line-height:1.7}.err{background:#fff2f0;color:#a33626;border:1px solid #ffcfc7;border-radius:16px;padding:12px;line-height:1.7;margin-top:10px;direction:ltr;text-align:left;white-space:pre-wrap}.success{background:#ecfff4;color:#176b35;border:1px solid #bfeccb;border-radius:16px;padding:12px;line-height:1.7;margin-top:10px}.rank-marker{background:#0b4f8a;color:#fff;border-radius:50%;border:3px solid #fff;width:28px;height:28px;display:grid;place-items:center;font-size:12px;font-weight:800;box-shadow:0 6px 16px rgba(11,79,138,.25)}
+@media (max-width:1200px){.layout{grid-template-columns:1fr}.side{position:static;max-height:none}.topbar{flex-direction:column}.status-card{width:auto}.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:720px){.topbar,.layout{padding:0 12px}.two-cols{grid-template-columns:1fr}.kpi-grid{grid-template-columns:1fr}.toolbar{align-items:flex-start;flex-direction:column}.tool-actions{width:100%;overflow:auto}.map-shell #map{height:520px}.weight-row{grid-template-columns:1fr}.legend{right:20px;bottom:20px}.actions{grid-template-columns:1fr}}
+</style>
+
+<style id="white-blue-contour-product-identity">
+:root{
+  --bg:#F7FBFF!important;--bg-0:#F7FBFF!important;--bg-1:#FFFFFF!important;--bg-2:#EAF6FF!important;--bg-3:#DFF1FF!important;--bg-4:#CBEAFF!important;
+  --surface:#FFFFFF!important;--surface2:#F1F8FF!important;--panel:#FFFFFF!important;--card:#FFFFFF!important;--paper:#F7FBFF!important;
+  --border:#D8E9F7!important;--line:#D8E9F7!important;--line-strong:rgba(11,99,206,.28)!important;
+  --text:#0B1F3A!important;--ink:#0B1F3A!important;--ink-mid:#315B83!important;--ink-low:#5D7895!important;--muted:#5D7895!important;
+  --accent:#0B63CE!important;--accent-hot:#2BA8FF!important;--accent-deep:#0A2E57!important;--cyan:#2BA8FF!important;--cyan-glow:#8FD3FF!important;
+  --blue:#0B63CE!important;--blue-2:#1E88E5!important;--blue-3:#6EC6FF!important;--pale:#EAF6FF!important;--shadow:0 18px 52px rgba(11,99,206,.12)!important;
+}
+html,body{
+  background:
+    linear-gradient(135deg,rgba(255,255,255,.98),rgba(237,248,255,.96) 50%,rgba(216,239,255,.94)),
+    url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22900%22%20height%3D%22520%22%20viewBox%3D%220%200%20900%20520%22%20fill%3D%22none%22%3E%0A%3Cpath%20d%3D%22M-40%2085%20C70%2022%20180%20148%20300%2076%20C430%20-2%20520%20121%20650%2054%20C760%20-3%20842%2042%20940%2018%22%20stroke%3D%22%230B63CE%22%20stroke-opacity%3D%220.13%22%20stroke-width%3D%222%22/%3E%0A%3Cpath%20d%3D%22M-55%20132%20C62%2078%20158%20190%20294%20123%20C424%2059%20536%20180%20674%20105%20C784%2045%20852%2092%20952%2065%22%20stroke%3D%22%230B63CE%22%20stroke-opacity%3D%220.115%22%20stroke-width%3D%221.8%22/%3E%0A%3Cpath%20d%3D%22M-60%20186%20C80%20130%20178%20240%20320%20172%20C442%20112%20548%20229%20704%20154%20C805%20106%20872%20151%20956%20123%22%20stroke%3D%22%230F7EDB%22%20stroke-opacity%3D%220.105%22%20stroke-width%3D%221.6%22/%3E%0A%3Cpath%20d%3D%22M-45%20246%20C62%20196%20184%20292%20303%20229%20C434%20160%20554%20286%20680%20216%20C786%20157%20855%20205%20946%20175%22%20stroke%3D%22%230B63CE%22%20stroke-opacity%3D%220.10%22%20stroke-width%3D%221.6%22/%3E%0A%3Cpath%20d%3D%22M-52%20306%20C68%20250%20180%20358%20318%20292%20C455%20225%20560%20346%20706%20277%20C812%20227%20884%20265%20952%20239%22%20stroke%3D%22%230F7EDB%22%20stroke-opacity%3D%220.095%22%20stroke-width%3D%221.4%22/%3E%0A%3Cpath%20d%3D%22M-50%20366%20C76%20302%20166%20420%20315%20352%20C446%20292%20548%20405%20692%20338%20C802%20287%20864%20326%20950%20300%22%20stroke%3D%22%230B63CE%22%20stroke-opacity%3D%220.09%22%20stroke-width%3D%221.3%22/%3E%0A%3Cpath%20d%3D%22M-30%20430%20C90%20368%20198%20478%20337%20413%20C468%20352%20570%20468%20718%20398%20C820%20350%20888%20388%20950%20362%22%20stroke%3D%22%230F7EDB%22%20stroke-opacity%3D%220.08%22%20stroke-width%3D%221.2%22/%3E%0A%3Cpath%20d%3D%22M160%2016%20C192%2048%20224%2051%20258%2022%20C292%20-7%20332%205%20358%2038%20C389%2076%20445%2065%20469%2030%22%20stroke%3D%22%230B63CE%22%20stroke-opacity%3D%220.10%22%20stroke-width%3D%221.1%22/%3E%0A%3Cpath%20d%3D%22M520%20360%20C568%20304%20638%20318%20674%20370%20C710%20423%20779%20420%20812%20363%22%20stroke%3D%22%230F7EDB%22%20stroke-opacity%3D%220.105%22%20stroke-width%3D%221.3%22/%3E%0A%3C/svg%3E")!important;
+  background-size:auto,900px 520px!important;background-attachment:fixed!important;
+  color:#0B1F3A!important;
+}
+body::before{
+  content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22900%22%20height%3D%22520%22%20viewBox%3D%220%200%20900%20520%22%20fill%3D%22none%22%3E%0A%3Cpath%20d%3D%22M-40%2085%20C70%2022%20180%20148%20300%2076%20C430%20-2%20520%20121%20650%2054%20C760%20-3%20842%2042%20940%2018%22%20stroke%3D%22%230B63CE%22%20stroke-opacity%3D%220.13%22%20stroke-width%3D%222%22/%3E%0A%3Cpath%20d%3D%22M-55%20132%20C62%2078%20158%20190%20294%20123%20C424%2059%20536%20180%20674%20105%20C784%2045%20852%2092%20952%2065%22%20stroke%3D%22%230B63CE%22%20stroke-opacity%3D%220.115%22%20stroke-width%3D%221.8%22/%3E%0A%3Cpath%20d%3D%22M-60%20186%20C80%20130%20178%20240%20320%20172%20C442%20112%20548%20229%20704%20154%20C805%20106%20872%20151%20956%20123%22%20stroke%3D%22%230F7EDB%22%20stroke-opacity%3D%220.105%22%20stroke-width%3D%221.6%22/%3E%0A%3Cpath%20d%3D%22M-45%20246%20C62%20196%20184%20292%20303%20229%20C434%20160%20554%20286%20680%20216%20C786%20157%20855%20205%20946%20175%22%20stroke%3D%22%230B63CE%22%20stroke-opacity%3D%220.10%22%20stroke-width%3D%221.6%22/%3E%0A%3Cpath%20d%3D%22M-52%20306%20C68%20250%20180%20358%20318%20292%20C455%20225%20560%20346%20706%20277%20C812%20227%20884%20265%20952%20239%22%20stroke%3D%22%230F7EDB%22%20stroke-opacity%3D%220.095%22%20stroke-width%3D%221.4%22/%3E%0A%3Cpath%20d%3D%22M-50%20366%20C76%20302%20166%20420%20315%20352%20C446%20292%20548%20405%20692%20338%20C802%20287%20864%20326%20950%20300%22%20stroke%3D%22%230B63CE%22%20stroke-opacity%3D%220.09%22%20stroke-width%3D%221.3%22/%3E%0A%3Cpath%20d%3D%22M-30%20430%20C90%20368%20198%20478%20337%20413%20C468%20352%20570%20468%20718%20398%20C820%20350%20888%20388%20950%20362%22%20stroke%3D%22%230F7EDB%22%20stroke-opacity%3D%220.08%22%20stroke-width%3D%221.2%22/%3E%0A%3Cpath%20d%3D%22M160%2016%20C192%2048%20224%2051%20258%2022%20C292%20-7%20332%205%20358%2038%20C389%2076%20445%2065%20469%2030%22%20stroke%3D%22%230B63CE%22%20stroke-opacity%3D%220.10%22%20stroke-width%3D%221.1%22/%3E%0A%3Cpath%20d%3D%22M520%20360%20C568%20304%20638%20318%20674%20370%20C710%20423%20779%20420%20812%20363%22%20stroke%3D%22%230F7EDB%22%20stroke-opacity%3D%220.105%22%20stroke-width%3D%221.3%22/%3E%0A%3C/svg%3E") center/780px 450px repeat!important;opacity:.34!important;mix-blend-mode:multiply!important;
+}
+body > *{position:relative;z-index:1;}
+.demo-banner,.header,.topbar,.app-header,header,.navbar{
+  background:linear-gradient(135deg,#FFFFFF,#EAF6FF 48%,#D8EFFF)!important;color:#0B1F3A!important;
+  border-bottom:1px solid rgba(11,99,206,.18)!important;box-shadow:0 14px 38px rgba(11,99,206,.10)!important;
+}
+.demo-banner *,.header *,.topbar *,.brand *,.navbar *{color:#0B1F3A!important;}
+.panel,.card,.section,.kpi,.kpi-card,.metric,.widget,.chart-card,.stat,.box,.container,.report-card,.control,.sidebar,.right-panel,.left-panel,.workspace > *, .module, .layer-row, .alert, .consultant-card, .table-card{
+  background:rgba(255,255,255,.88)!important;color:#0B1F3A!important;border-color:rgba(11,99,206,.16)!important;
+  box-shadow:0 16px 48px rgba(11,99,206,.10)!important;backdrop-filter:blur(12px)!important;
+}
+.app,.workspace,.main,.content,.map-wrap{background:transparent!important;color:#0B1F3A!important;}
+#map,.map,.map-canvas{background:linear-gradient(135deg,#EAF6FF,#FFFFFF)!important;}
+button,.btn,.tbtn,.tl-btn,.tool-btn,.filter,.chip,.fmt-chip,.idx-chip,.select,.input,input,select{
+  background:linear-gradient(180deg,#FFFFFF,#EAF6FF)!important;border-color:rgba(11,99,206,.20)!important;color:#0A2E57!important;
+}
+button:hover,.btn:hover,.tbtn.primary,.tl-btn.play,.active,.on,.primary{background:linear-gradient(135deg,#0B63CE,#2BA8FF)!important;color:#FFFFFF!important;border-color:transparent!important;}
+h1,h2,h3,h4,h5,h6,.title,.section-title,.brand-name{color:#0A2E57!important;}
+p,li,td,.meta,.subtitle,.desc,.label,.chart-subtitle{color:#315B83!important;}
+th{background:linear-gradient(135deg,#0B63CE,#1E88E5)!important;color:#fff!important;}
+table,tbody,tr,td{background-color:rgba(255,255,255,.86)!important;border-color:#D8E9F7!important;color:#0B1F3A!important;}
+svg text{fill:#0B1F3A!important;}
+.footer,footer{background:linear-gradient(135deg,#FFFFFF,#EAF6FF)!important;color:#264967!important;border-top:1px solid rgba(11,99,206,.16)!important;}
+.leaflet-container{background:#EAF6FF!important;}
+@media print{body::before{display:none!important}body{background:white!important}}
+</style>
+
+
+<style id="professional-live-preview-overrides">
+:root{
+  --navy:#071827;
+  --sky:#38bdf8;
+  --teal:#2dd4bf;
+}
+body{
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1400' height='900' viewBox='0 0 1400 900'%3E%3Cg fill='none' stroke='%2338bdf8' stroke-width='1' opacity='.10'%3E%3Cpath d='M-120 160 C130 70 340 80 575 200 S1020 340 1300 170 S1650 70 1780 180'/%3E%3Cpath d='M-120 250 C140 160 360 170 600 300 S1030 430 1320 260 S1660 160 1790 270'/%3E%3Cpath d='M-120 340 C150 250 370 265 615 395 S1045 525 1335 355 S1670 250 1800 365'/%3E%3Cpath d='M-120 430 C160 340 390 355 635 485 S1065 620 1355 445 S1690 340 1810 455'/%3E%3C/g%3E%3C/svg%3E"),
+    linear-gradient(180deg,#071827 0%,#0d2b44 42%,#f5f8fb 42%,#f8fbfd 100%) !important;
+  background-size:cover !important;
+  background-attachment:fixed !important;
+}
+.map-marker,.map-marker *,svg .pulse,svg .ring,svg .core,.circle,.orb,.blob,.floating-circle,.bg-circle,.decor-circle{display:none!important;opacity:0!important;visibility:hidden!important;}
+</style>
+
+</head>
+<body>
+<style id="portfolio-preview-banner-style">
+.portfolio-preview-banner{position:sticky;top:0;z-index:999999;background:linear-gradient(90deg,#0e4d77,#0b1724);color:#fff;padding:10px 18px;font:600 13px/1.45 system-ui,-apple-system,Segoe UI,Arial,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.18);letter-spacing:.01em}
+.portfolio-preview-banner b{color:#f4b95f} .portfolio-preview-banner small{opacity:.82;font-weight:500}
+</style>
+<div class="portfolio-preview-banner" dir="rtl"><b>GeoSite Dashboard — Web UI Preview</b> · Static web preview for portfolio review. Displayed figures, maps, AOIs, records and analysis outputs are demonstration/sample values only — not real client data and not project deliverables.</div>
+
+  <div class="contour-bg"></div>
+  <header class="topbar">
+    <div>
+      <div class="eyebrow">GeoSite Decision Support</div>
+      <h1>داشبورد اختيار أفضل موقع للخدمات العامة</h1>
+      <p>تحليل مكاني تشغيلي للمستشفى، المدرسة، المركز الصحي والخدمات العامة باستخدام معايير تخطيطية وأوزان قابلة للمراجعة.</p>
+    </div>
+    <div class="status-card">
+      <span>نظام التحليل</span>
+      <b id="crsName">EPSG:32637</b>
+      <small id="engineStatus">جارٍ فحص ArcGIS Pro...</small>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="panel side">
+      <section class="step-card active">
+        <div class="step-title"><span>1</span> نوع الخدمة</div>
+        <label>اسم الدراسة</label>
+        <input id="projectName" type="text" placeholder="مثال: اختيار موقع مركز صحي بحي ...">
+
+        <label>نوع المنشأة</label>
+        <select id="serviceType"></select>
+      </section>
+
+      <section class="step-card">
+        <div class="step-title"><span>2</span> البيانات المطلوبة</div>
+        <div id="requiredInputs" class="required-list"></div>
+        <div class="note">
+          صيغة SHP يجب رفعها كملف ZIP يحتوي على SHP/DBF/SHX/PRJ. يتم تحويل كل الطبقات إلى UTM Zone 37N للتحليل.
+        </div>
+      </section>
+
+      <section class="step-card">
+        <div class="step-title"><span>3</span> رفع الطبقات الحقيقية</div>
+        <form id="analysisForm">
+          <label>طبقة المواقع المرشحة <b class="required">إلزامي</b></label>
+          <input name="candidates_file" type="file" accept=".zip,.shp,.kml,.kmz,.geojson,.json" required>
+
+          <label>الخدمات القائمة من نفس النوع</label>
+          <input name="existing_file" type="file" accept=".zip,.shp,.kml,.kmz,.geojson,.json">
+
+          <label>شبكة الطرق وتصنيفها</label>
+          <input name="roads_file" type="file" accept=".zip,.shp,.kml,.kmz,.geojson,.json">
+
+          <label>السكان / الأحياء / القرى</label>
+          <input name="population_file" type="file" accept=".zip,.shp,.kml,.kmz,.geojson,.json">
+
+          <label>النطاق العمراني</label>
+          <input name="urban_file" type="file" accept=".zip,.shp,.kml,.kmz,.geojson,.json">
+
+          <label>مخاطر السيول أو القيود البيئية</label>
+          <input name="hazard_file" type="file" accept=".zip,.shp,.kml,.kmz,.geojson,.json">
+
+          <details>
+            <summary>طبقات داعمة إضافية</summary>
+            <label>الحدائق / المساحات المفتوحة</label>
+            <input name="open_space_file" type="file" accept=".zip,.shp,.kml,.kmz,.geojson,.json">
+            <label>النقل العام / محطات الحافلات أو المترو</label>
+            <input name="transit_file" type="file" accept=".zip,.shp,.kml,.kmz,.geojson,.json">
+          </details>
+
+          <details>
+            <summary>مطابقة أسماء الحقول اختيارياً</summary>
+            <div class="two-cols">
+              <div><label>معرف الموقع</label><input name="candidate_id_field" placeholder="site_id"></div>
+              <div><label>مساحة الأرض م²</label><input name="area_field" placeholder="area_m2"></div>
+              <div><label>حقل السكان</label><input name="population_field" placeholder="population"></div>
+              <div><label>تصنيف الطريق</label><input name="road_class_field" placeholder="road_class"></div>
+              <div><label>مؤشر مخاطر السيول</label><input name="hazard_field" placeholder="risk"></div>
+              <div><label>الميل %</label><input name="slope_field" placeholder="slope_pct"></div>
+              <div><label>مؤشر التكلفة 0-1</label><input name="cost_field" placeholder="cost_index"></div>
+              <div><label>إمكانية التوسع 0-1</label><input name="expansion_field" placeholder="expansion"></div>
+              <div><label>السلامة باتجاه الرياح 0-1</label><input name="downwind_field" placeholder="downwind_safety"></div>
+              <div><label>سهولة المشي 0-1</label><input name="walkability_field" placeholder="walkability"></div>
+              <div><label>السلامة المرورية 0-1</label><input name="traffic_safety_field" placeholder="traffic_safety"></div>
+              <div><label>الخصوصية 0-1</label><input name="privacy_field" placeholder="privacy"></div>
+            </div>
+          </details>
+        </form>
+      </section>
+
+      <section class="step-card">
+        <div class="step-title"><span>4</span> مصفوفة الأوزان</div>
+        <div class="weights-head">
+          <span>المجموع</span>
+          <b id="weightTotal">100%</b>
+        </div>
+        <div id="weightsBox" class="weights-box"></div>
+      </section>
+
+      <div class="actions">
+        <button id="runBtn" class="primary">تشغيل التحليل</button>
+        <button id="resetWeights" class="secondary">إعادة الأوزان</button>
+      </div>
+    </aside>
+
+    <section class="content">
+      <div class="toolbar panel">
+        <div>
+          <b>خريطة التحليل</b>
+          <span id="mapSubtitle">ارفع البيانات الحقيقية ثم شغّل التحليل.</span>
+        </div>
+        <div class="tool-actions">
+          <button id="downloadGeojson" disabled>تنزيل GeoJSON</button>
+          <button id="reportBtn" disabled>تقرير فني</button>
+        </div>
+      </div>
+
+      <div class="map-shell panel">
+        <div id="map"></div>
+        <div class="legend">
+          <b>درجة الملاءمة</b>
+          <span><i style="background:#083b66"></i> 80 - 100</span>
+          <span><i style="background:#0b6fb3"></i> 65 - 79</span>
+          <span><i style="background:#3aa0d8"></i> 50 - 64</span>
+          <span><i style="background:#8fd0ef"></i> 35 - 49</span>
+          <span><i style="background:#9aa7b1"></i> مستبعد</span>
+        </div>
+      </div>
+
+      <section class="kpi-grid">
+        <div class="kpi"><span>إجمالي المواقع</span><b id="kTotal">-</b></div>
+        <div class="kpi"><span>المواقع المؤهلة</span><b id="kEligible">-</b></div>
+        <div class="kpi"><span>أفضل موقع</span><b id="kBest">-</b></div>
+        <div class="kpi"><span>درجة الأفضل</span><b id="kScore">-</b></div>
+      </section>
+
+      <section class="panel results-panel">
+        <div class="section-head">
+          <div>
+            <h2>نتائج المفاضلة</h2>
+            <p id="summaryText">لا توجد نتائج بعد.</p>
+          </div>
+          <div id="dataCompleteness" class="completeness"></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>الترتيب</th>
+                <th>الموقع</th>
+                <th>الحالة</th>
+                <th>الدرجة</th>
+                <th>المساحة م²</th>
+                <th>أقرب طريق</th>
+                <th>السكان المخدومون</th>
+                <th>أسباب الاستبعاد / ملاحظات</th>
+              </tr>
+            </thead>
+            <tbody id="resultsBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel rules-panel">
+        <h2>القواعد المستخدمة للخدمة المحددة</h2>
+        <ul id="rulesList"></ul>
+      </section>
+    </section>
+  </main>
+
+  <div id="loading" class="loading hidden">
+    <div class="loader"></div>
+    <b>جارٍ تنفيذ التحليل المكاني...</b>
+    <span>يتم تحويل الطبقات إلى UTM Zone 37N، حساب المسافات، تطبيق القيود، ثم ترتيب المواقع.</span>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  
+<script id="portfolio-demo-api">
+(function(){
+ const cfg={"analysis_crs": "EPSG:32637", "arcpy_available": true, "criteria_labels": {"accessibility": "إمكانية الوصول", "population": "خدمة السكان", "existing_gap": "الفجوة الخدمية", "hazard": "مخاطر السيول", "land_use": "ملاءمة استخدام الأرض", "area": "المساحة"}, "service_presets": {"health_center": {"label_ar": "مركز صحي", "service_radius_m": 2500, "reference_notes": ["بيانات تجريبية للعرض فقط", "الأوزان قابلة للتعديل أثناء مراجعة الفكرة"], "required_inputs": {"mandatory": ["المواقع المرشحة", "الطرق"], "recommended": ["السكان", "المخاطر", "الخدمات القائمة"]}, "weights": {"accessibility": 25, "population": 25, "existing_gap": 20, "hazard": 15, "land_use": 10, "area": 5}}, "school": {"label_ar": "مدرسة", "service_radius_m": 1500, "reference_notes": ["الطبقات المعروضة افتراضية"], "required_inputs": {"mandatory": ["المواقع المرشحة", "السكان"], "recommended": ["الطرق", "النطاق العمراني"]}, "weights": {"accessibility": 20, "population": 30, "existing_gap": 25, "hazard": 10, "land_use": 10, "area": 5}}}};
+ const result={"ok": true, "summary": {"total": 12, "eligible": 8, "rejected": 4, "best": {"candidate_id": "DEMO-SITE-03", "suitability_score": 88}}, "metadata": {"data_completeness": {"score_pct": 86, "items": [{"label": "Roads", "present": true}, {"label": "Population", "present": true}, {"label": "Hazards", "present": false}]}}, "table": [{"rank": 1, "candidate_id": "DEMO-SITE-03", "eligible": true, "suitability_score": 88, "area_m2": 12500, "nearest_road_class": "Collector", "nearest_road_m": 180, "population_served": 15800, "hard_failures": [], "not_checked": [], "criteria_scores": {"accessibility": 90, "population": 84, "existing_gap": 92}}, {"rank": 2, "candidate_id": "DEMO-SITE-07", "eligible": true, "suitability_score": 81, "area_m2": 9800, "nearest_road_class": "Local", "nearest_road_m": 240, "population_served": 12100, "hard_failures": [], "not_checked": []}, {"rank": "-", "candidate_id": "DEMO-SITE-10", "eligible": false, "suitability_score": 45, "area_m2": 4200, "nearest_road_class": "Local", "nearest_road_m": 620, "population_served": 5800, "hard_failures": ["داخل نطاق خطر تجريبي"], "not_checked": []}], "geojson": {"type": "FeatureCollection", "features": [{"type": "Feature", "properties": {"rank": 1, "candidate_id": "DEMO-SITE-03", "eligible": true, "suitability_score": 88, "area_m2": 12500, "criteria_scores": {"accessibility": 90, "population": 84}}, "geometry": {"type": "Point", "coordinates": [46.67, 24.72]}}, {"type": "Feature", "properties": {"rank": 2, "candidate_id": "DEMO-SITE-07", "eligible": true, "suitability_score": 81, "area_m2": 9800}, "geometry": {"type": "Point", "coordinates": [46.73, 24.68]}}, {"type": "Feature", "properties": {"candidate_id": "DEMO-SITE-10", "eligible": false, "suitability_score": 45, "area_m2": 4200, "hard_failures": ["داخل نطاق خطر تجريبي"]}, "geometry": {"type": "Point", "coordinates": [46.61, 24.75]}}]}};
+ function R(o,status=200){return Promise.resolve(new Response(JSON.stringify(o),{status,headers:{'Content-Type':'application/json'}}));}
+ const old=window.fetch.bind(window);
+ window.fetch=function(url,opts){const u=String(url); if(u==='/api/config') return R(cfg); if(u==='/api/analyze') return R(result); if(u==='/api/report') return R({ok:true,url:'#'}); return old(url,opts);};
+})();
+</script>
+<script>let CONFIG = null;
+let currentResult = null;
+let resultLayer = null;
+let rankLayer = null;
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+
+const map = L.map('map', { preferCanvas: true, zoomControl: false }).setView([24.7136, 46.6753], 10);
+L.control.zoom({position:'topleft'}).addTo(map);
+
+const baseLayers = {
+  'خريطة شوارع OSM': L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap' }),
+  'صور فضائية Esri': L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, attribution: 'Tiles © Esri' }),
+  'خريطة طبوغرافية Esri': L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, attribution: 'Tiles © Esri' }),
+  'خريطة فاتحة Carto': L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { maxZoom: 19, attribution: '© CARTO © OpenStreetMap' })
+};
+baseLayers['خريطة طبوغرافية Esri'].addTo(map);
+L.control.layers(baseLayers, null, { position: 'topleft', collapsed: false }).addTo(map);
+
+function showLoading(show) { $('loading').classList.toggle('hidden', !show); }
+
+async function init() {
+  try {
+    const res = await fetch('/api/config');
+    CONFIG = await res.json();
+    $('crsName').textContent = CONFIG.analysis_crs || 'EPSG:32637';
+    $('engineStatus').textContent = CONFIG.arcpy_available ? 'ArcGIS Pro Python / ArcPy جاهز للتشغيل' : 'ArcPy غير متاح: شغّل run_arcgispro_python.bat';
+    renderServices();
+    renderPreset();
+  } catch (e) {
+    $('engineStatus').textContent = 'تعذر الاتصال بالخادم المحلي';
+    alert('تعذر تحميل إعدادات النظام: ' + e.message);
+  }
+}
+
+function renderServices() {
+  const select = $('serviceType');
+  select.innerHTML = '';
+  Object.entries(CONFIG.service_presets).forEach(([key, p]) => {
+    const opt = document.createElement('option');
+    opt.value = key;
+    opt.textContent = p.label_ar;
+    select.appendChild(opt);
+  });
+  select.addEventListener('change', renderPreset);
+}
+
+function renderPreset() {
+  const preset = CONFIG.service_presets[$('serviceType').value];
+  $('rulesList').innerHTML = (preset.reference_notes || []).map(x => `<li>${esc(x)}</li>`).join('');
+  const req = preset.required_inputs || {};
+  const mandatory = (req.mandatory || []).map(x => `<span>${esc(x)}</span>`).join('');
+  const recommended = (req.recommended || []).map(x => `<span>${esc(x)}</span>`).join('');
+  $('requiredInputs').innerHTML = `<div class="group-title">إلزامي للتقييم الصحيح</div>${mandatory}<div class="group-title">مستحسن لرفع دقة القرار</div>${recommended}`;
+  renderWeights(preset.weights || {});
+  $('mapSubtitle').textContent = `الخدمة المحددة: ${preset.label_ar} | نصف قطر الخدمة المستخدم في التحليل: ${(preset.service_radius_m || 0).toLocaleString()} م`;
+}
+
+function renderWeights(weights) {
+  const labels = CONFIG.criteria_labels || {};
+  $('weightsBox').innerHTML = Object.entries(weights).map(([k, v]) => {
+    return `<div class="weight-row">
+      <b>${esc(labels[k] || k)}</b>
+      <input type="range" min="0" max="40" step="1" value="${Number(v)}" data-key="${esc(k)}">
+      <output>${Number(v)}%</output>
+    </div>`;
+  }).join('');
+  document.querySelectorAll('#weightsBox input').forEach(input => {
+    input.addEventListener('input', () => {
+      input.parentElement.querySelector('output').textContent = `${input.value}%`;
+      updateWeightTotal();
+    });
+  });
+  updateWeightTotal();
+}
+
+function updateWeightTotal() {
+  const total = [...document.querySelectorAll('#weightsBox input')].reduce((a, i) => a + Number(i.value || 0), 0);
+  $('weightTotal').textContent = `${total}%`;
+  $('weightTotal').style.color = total === 100 ? '#16823a' : '#c46b00';
+}
+
+function getWeights() {
+  const weights = {};
+  document.querySelectorAll('#weightsBox input').forEach(i => weights[i.dataset.key] = Number(i.value || 0));
+  return weights;
+}
+
+$('resetWeights').addEventListener('click', () => renderWeights(CONFIG.service_presets[$('serviceType').value].weights || {}));
+
+$('runBtn').addEventListener('click', async () => {
+  const form = $('analysisForm');
+  const fd = new FormData(form);
+  fd.append('project_name', $('projectName').value || 'دراسة اختيار موقع خدمة عامة');
+  fd.append('service_type', $('serviceType').value);
+  fd.append('weights_json', JSON.stringify(getWeights()));
+
+  if (!fd.get('candidates_file') || !fd.get('candidates_file').name) {
+    alert('طبقة المواقع المرشحة إلزامية. ارفع KML/KMZ أو GeoJSON/JSON أو ZIP Shapefile.');
+    return;
+  }
+
+  showLoading(true);
+  try {
+    const res = await fetch('/api/analyze', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (!res.ok || !data.ok) throw new Error(data.error || 'فشل التحليل');
+    currentResult = data;
+    renderResult(data);
+    drawResult(data.geojson);
+    $('downloadGeojson').disabled = false;
+    $('reportBtn').disabled = false;
+  } catch (e) {
+    console.error(e);
+    showError(e.message || e);
+  } finally {
+    showLoading(false);
+  }
+});
+
+function showError(message) {
+  const body = $('resultsBody');
+  body.innerHTML = `<tr><td colspan="8"><div class="err">${esc(message)}</div></td></tr>`;
+  $('summaryText').textContent = 'حدث خطأ أثناء التحليل. راجع رسالة الخطأ وبيانات الإدخال.';
+}
+
+function renderResult(data) {
+  const s = data.summary || {};
+  const b = s.best || {};
+  $('kTotal').textContent = s.total ?? '-';
+  $('kEligible').textContent = s.eligible ?? '-';
+  $('kBest').textContent = b.candidate_id || '-';
+  $('kScore').textContent = b.suitability_score != null ? `${b.suitability_score}%` : '-';
+  $('summaryText').textContent = `تم تقييم ${s.total || 0} موقعاً. اجتاز ${s.eligible || 0} موقعاً قيود الاستبعاد، وتم استبعاد ${s.rejected || 0} موقعاً قبل المفاضلة.`;
+
+  const comp = data.metadata?.data_completeness;
+  if (comp) {
+    $('dataCompleteness').innerHTML = `<span class="chip ${comp.score_pct >= 75 ? 'ok' : 'miss'}">اكتمال البيانات: ${comp.score_pct}%</span>` +
+      (comp.items || []).map(i => `<span class="chip ${i.present ? 'ok' : 'miss'}">${esc(i.label)}: ${i.present ? 'متوفر' : 'غير مرفوع'}</span>`).join('');
+  }
+
+  const rows = (data.table || []).map(p => {
+    const statusClass = p.eligible ? 'ok' : 'bad';
+    const statusText = p.eligible ? 'مؤهل' : 'مستبعد';
+    const notes = [...(p.hard_failures || []), ...(p.not_checked || []).map(x => 'لم يفحص: ' + x)].join(' | ') || '-';
+    return `<tr>
+      <td>${esc(p.rank || '-')}</td>
+      <td><b>${esc(p.candidate_id || '-')}</b></td>
+      <td class="${statusClass}">${statusText}</td>
+      <td>${esc(p.suitability_score ?? 0)}%</td>
+      <td>${Number(p.area_m2 || 0).toLocaleString()}</td>
+      <td>${esc(p.nearest_road_class || '-')}<br><small>${p.nearest_road_m != null ? Number(p.nearest_road_m).toLocaleString() + ' م' : ''}</small></td>
+      <td>${p.population_served != null ? Number(p.population_served).toLocaleString() : '-'}</td>
+      <td>${esc(notes)}</td>
+    </tr>`;
+  }).join('');
+  $('resultsBody').innerHTML = rows || `<tr><td colspan="8">لا توجد مواقع في الطبقة المرفوعة.</td></tr>`;
+}
+
+function colorByScore(p) {
+  if (!p || !p.eligible) return '#9aa7b1';
+  const s = Number(p.suitability_score || 0);
+  if (s >= 80) return '#083b66';
+  if (s >= 65) return '#0b6fb3';
+  if (s >= 50) return '#3aa0d8';
+  if (s >= 35) return '#8fd0ef';
+  return '#d6ebf7';
+}
+
+function drawResult(geojson) {
+  if (resultLayer) map.removeLayer(resultLayer);
+  if (rankLayer) map.removeLayer(rankLayer);
+  rankLayer = L.layerGroup().addTo(map);
+
+  resultLayer = L.geoJSON(geojson, {
+    style: f => ({ color: '#ffffff', weight: 2, fillColor: colorByScore(f.properties), fillOpacity: 0.82 }),
+    pointToLayer: (f, latlng) => L.circleMarker(latlng, { radius: 10, color: '#fff', weight: 2, fillColor: colorByScore(f.properties), fillOpacity: 0.92 }),
+    onEachFeature: (f, layer) => {
+      const p = f.properties || {};
+      const criteria = p.criteria_scores ? Object.entries(p.criteria_scores).slice(0, 8).map(([k,v]) => `<tr><td>${esc(CONFIG.criteria_labels[k] || k)}</td><td>${v}%</td></tr>`).join('') : '';
+      const fail = (p.hard_failures || []).join('<br>') || '-';
+      layer.bindPopup(`<div class="popup">
+        <h3>${esc(p.candidate_id || '-')}</h3>
+        <b>الحالة:</b> ${p.eligible ? 'مؤهل' : 'مستبعد'}<br>
+        <b>الدرجة:</b> ${esc(p.suitability_score ?? 0)}%<br>
+        <b>الترتيب:</b> ${esc(p.rank || '-')}<br>
+        <b>المساحة:</b> ${Number(p.area_m2 || 0).toLocaleString()} م²<br>
+        <b>أسباب الاستبعاد:</b><br>${fail}
+        ${criteria ? `<hr><table>${criteria}</table>` : ''}
+      </div>`);
+      addRankMarker(f, p);
+    }
+  }).addTo(map);
+  try { map.fitBounds(resultLayer.getBounds(), { padding: [26, 26] }); } catch (e) {}
+}
+
+function addRankMarker(feature, p) {
+  if (!p.rank) return;
+  let latlng = null;
+  try {
+    if (feature.geometry.type === 'Point') {
+      const c = feature.geometry.coordinates;
+      latlng = [c[1], c[0]];
+    } else {
+      const layer = L.geoJSON(feature);
+      latlng = layer.getBounds().getCenter();
+    }
+  } catch (e) { return; }
+  const icon = L.divIcon({ className: '', html: `<div class="rank-marker">${p.rank}</div>`, iconSize: [28, 28], iconAnchor: [14, 14] });
+  L.marker(latlng, { icon }).addTo(rankLayer);
+}
+
+$('downloadGeojson').addEventListener('click', () => {
+  if (!currentResult?.geojson) return;
+  const blob = new Blob([JSON.stringify(currentResult.geojson, null, 2)], { type: 'application/geo+json;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `geosite_results_${new Date().toISOString().slice(0,19).replace(/[:T]/g,'_')}.geojson`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+});
+
+$('reportBtn').addEventListener('click', async () => {
+  if (!currentResult) return;
+  showLoading(true);
+  try {
+    const res = await fetch('/api/report', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(currentResult) });
+    const data = await res.json();
+    if (!res.ok || !data.ok) throw new Error(data.error || 'تعذر إنشاء التقرير');
+    window.open(data.url, '_blank');
+  } catch (e) {
+    alert(e.message || e);
+  } finally {
+    showLoading(false);
+  }
+});
+
+init();
+</script>
+</body>
+</html>
